@@ -10,7 +10,7 @@ import {
   PanResponder,
   TouchableOpacity,
 } from 'react-native';
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 let sliderPosition = 0;
 
 const styles = StyleSheet.create({
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
 const HeaderView = (props) => (
     <View style={{backgroundColor: 'green',}}><Text style={{color: 'white'}}>Hello world</Text></View>
   )
-  
+
   const SlidingPanelView = (props) => (
     <View style={{height: 200, width, backgroundColor: 'blue'}}><Text style={{color: 'white'}}>Hello world</Text></View>
   )
@@ -36,7 +36,7 @@ const HeaderView = (props) => (
 const SlidingPanelIOS = (props) => (
   <Animated.View style={props.panelPosition === 'bottom' ? {bottom: props.heightAnim, flex: 1, position: 'absolute',} : {top: props.heightAnim, flex: 1, position: 'absolute',}}>
     <Animated.View
-            {...props.panResponder} style={{height: props.headerPanelHeight,}}>   
+            {...props.panResponder} style={{height: props.headerPanelHeight,}}>
       {props.headerView()}
     </Animated.View>
     <View style={props.panelPosition === 'bottom' ? {top: props.headerPanelHeight, left: 0, position: 'absolute',} : {bottom: props.headerPanelHeight, left: 0, position: 'absolute',}}>
@@ -48,7 +48,7 @@ const SlidingPanelIOS = (props) => (
 const SlidingPanelAndroid = (props) => (
     <Animated.View style={props.panelPosition === 'bottom' ? {bottom: props.heightAnim, flex: 1, position: 'absolute',} : {top: props.heightAnim, flex: 1, position: 'absolute',}}>
     <Animated.View
-            {...props.panResponder} style={{height: props.headerPanelHeight,}}>   
+            {...props.panResponder} style={{height: props.headerPanelHeight,}}>
       {props.headerView()}
     </Animated.View>
     <Animated.View style={props.panelPosition === 'bottom' ? {top: props.headerPanelHeight, left: 0, position: 'absolute',} : {bottom: props.headerPanelHeight, left: 0, position: 'absolute',}}>
@@ -80,7 +80,8 @@ export default class SlidingPanel extends Component {
             this.props.onDragStart(event, gestureState);
           }
           else {
-            this.props.onDrag(event, gestureState);
+
+              this.props.onDrag(event, gestureState);
           }
           if(this.props.panelPosition === 'bottom') {
             a = gestureState.dy * -1;
@@ -88,7 +89,7 @@ export default class SlidingPanel extends Component {
           else {
             a = gestureState.dy * 1;
           }
-          if((Platform.OS === 'android' ? sliderPosition + a < height - (this.props.headerLayoutHeight + 25): sliderPosition + a < height - (this.props.headerLayoutHeight -2)) && sliderPosition + a > -2){
+          if((Platform.OS === 'android' ? sliderPosition + a < this.props.maxDragHeight - (this.props.headerLayoutHeight + 25): sliderPosition + a < this.props.maxDragHeight - (this.props.headerLayoutHeight -2)) && sliderPosition + a > -2){
             if(sliderPosition !== 0) {
               this.state.heightAnim.setValue(sliderPosition + a)
             }
@@ -103,19 +104,38 @@ export default class SlidingPanel extends Component {
         if(a !== 0) {
           this.props.onDragStop(e, gesture)
         }
-        
+
+        if(a > 15){
+          this.props.onTop(true)
+          sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
+          this.props.onAnimationStart();
+          Animated.timing(
+            this.state.heightAnim,
+            {
+              toValue: Platform.OS === 'android' ? this.props.maxDragHeight-this.props.headerLayoutHeight - 25 : this.props.maxDragHeight-this.props.headerLayoutHeight,
+              duration: this.props.AnimationSpeed,
+            }
+          ).start(() => {
+            this.props.onTop(true)
+            this.props.onAnimationStop()
+          });
+        }
+
         if(this.props.allowAnimation) {
           if(a === 0 || (this.props.panelPosition === 'bottom' ? gesture.vy < -1 : gesture.vy > 1)) {
-            if(sliderPosition < height-this.props.headerLayoutHeight) {
-              sliderPosition = height-this.props.headerLayoutHeight
+            if(sliderPosition < this.props.maxDragHeight-this.props.headerLayoutHeight) {
+              sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
               this.props.onAnimationStart();
               Animated.timing(
                 this.state.heightAnim,
                 {
-                  toValue: Platform.OS === 'android' ? height-this.props.headerLayoutHeight - 25 : height-this.props.headerLayoutHeight,
+                  toValue: Platform.OS === 'android' ? this.props.maxDragHeight-this.props.headerLayoutHeight - 25 : this.props.maxDragHeight-this.props.headerLayoutHeight,
                   duration: this.props.AnimationSpeed,
                 }
-              ).start(() => this.props.onAnimationStop());
+              ).start(() => {
+                this.props.onTop(true)
+                this.props.onAnimationStop()
+              });
             }
             else {
               sliderPosition = 0
@@ -126,7 +146,10 @@ export default class SlidingPanel extends Component {
                   toValue: 0,
                   duration: this.props.AnimationSpeed,
                 }
-              ).start(() => this.props.onAnimationStop()); 
+              ).start(() => {
+                this.props.onTop(false)
+                this.props.onAnimationStop()
+              });
             }
           }
           if(this.props.panelPosition === 'bottom' ? gesture.vy > 1 : gesture.vy < -1) {
@@ -138,7 +161,10 @@ export default class SlidingPanel extends Component {
                 toValue: 0,
                 duration: this.props.AnimationSpeed,
               }
-            ).start(() => this.props.onAnimationStop());
+            ).start(() => {
+              this.props.onTop(false)
+              this.props.onAnimationStop()
+            });
           }
         }
       },
@@ -157,11 +183,11 @@ export default class SlidingPanel extends Component {
   }
 
   onRequestStart() {
-    sliderPosition = height-this.props.headerLayoutHeight
+    sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
     Animated.timing(
       this.state.heightAnim,
       {
-        toValue: Platform.OS === 'android' ? height-this.props.headerLayoutHeight - 25 : height-this.props.headerLayoutHeight,
+        toValue: Platform.OS === 'android' ? this.props.maxDragHeight-this.props.headerLayoutHeight - 25 : this.props.maxDragHeight-this.props.headerLayoutHeight,
         duration: this.props.AnimationSpeed,
       }
     ).start();
@@ -200,7 +226,7 @@ SlidingPanel.propTypes = {
   headerLayoutHeight: PropTypes.number.isRequired,
   headerLayout: PropTypes.func.isRequired,
   slidingPanelLayout: PropTypes.func.isRequired,
-
+  maxDragHeight: PropTypes.number,
   AnimationSpeed: PropTypes.number,
   slidingPanelLayoutHeight: PropTypes.number,
   panelPosition: PropTypes.string,
@@ -217,6 +243,7 @@ SlidingPanel.propTypes = {
 SlidingPanel.defaultProps = {
   panelPosition: 'bottom',
   headerLayoutHeight: 50,
+  maxDragHeight: Dimensions.get('window').height,
   headerLayout: () => {},
   visible: true,
   onDragStart: (event, gestureState) => {},
