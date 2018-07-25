@@ -119,6 +119,9 @@ export default class SlidingPanel extends Component {
             this.props.onTop(true)
             this.props.onAnimationStop()
           });
+        }else
+        {
+          console.log(a)
         }
 
         if(this.props.allowAnimation) {
