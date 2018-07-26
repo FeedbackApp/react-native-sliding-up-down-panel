@@ -211,6 +211,7 @@ export default class SlidingPanel extends Component {
   render() {
     return (
       <View style={this.props.panelPosition === 'bottom' ? {position: 'absolute', bottom: 0} : {position: 'absolute', top: 0}}>
+        {<View style={{position: 'absolute', backgroundColor: 'red', width: 40, height: 40, zIndex: 99}}/>}
         {
           Platform.OS === 'ios' && this.props.visible === true ?
             <SlidingPanelIOS
