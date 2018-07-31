@@ -80,7 +80,7 @@ export default class SlidingPanel extends Component {
           if(a === 0) {
             this.props.onDragStart(event, gestureState);
           }
-          else if(a > 5) {
+          else if(a > 5 && !this.state.isOnTop) {
             sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
             this.props.onAnimationStart();
             Animated.timing(
@@ -94,6 +94,23 @@ export default class SlidingPanel extends Component {
               this.props.onAnimationStop()
             });
             return
+          }
+          else if(a <= 0 && this.state.isOnTop)
+          {
+            sliderPosition = 0
+            this.props.onAnimationStart();
+            Animated.timing(
+              this.state.heightAnim,
+              {
+                toValue: 0,
+                duration: this.props.AnimationSpeed,
+              }
+            ).start(() => {
+              this.props.onTop(false)
+              this.setState({isOnTop: false})
+              this.props.onAnimationStop()
+            });
+            return;
           }
           else {
               this.props.onDrag(event, gestureState);
