@@ -79,6 +79,21 @@ export default class SlidingPanel extends Component {
           if(a === 0) {
             this.props.onDragStart(event, gestureState);
           }
+          else if(a > 5) {
+            this.props.onTop(true)
+            sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
+            this.props.onAnimationStart();
+            Animated.timing(
+              this.state.heightAnim,
+              {
+                toValue: Platform.OS === 'android' ? this.props.maxDragHeight-this.props.headerLayoutHeight - 25 : this.props.maxDragHeight-this.props.headerLayoutHeight,
+                duration: this.props.AnimationSpeed,
+              }
+            ).start(() => {
+              this.props.onTop(true)
+              this.props.onAnimationStop()
+            });
+          }
           else {
 
               this.props.onDrag(event, gestureState);
@@ -105,7 +120,7 @@ export default class SlidingPanel extends Component {
           this.props.onDragStop(e, gesture)
         }
 
-        if(a > 15){
+        if(a > 5){
           this.props.onTop(true)
           sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
           this.props.onAnimationStart();
@@ -120,7 +135,7 @@ export default class SlidingPanel extends Component {
             this.props.onAnimationStop()
           });
         }
-        else if(a < -5)
+        else if(a < 0)
         {
           sliderPosition = 0
           this.props.onAnimationStart();
