@@ -122,7 +122,7 @@ export default class SlidingPanel extends Component {
         }
 
         console.log('@onPanResponderRelease : ' + a);
-        if(a >= 0s){
+        if(a >= 0){
           console.log('supposed to be going up ')
           sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
           this.props.onAnimationStart();
