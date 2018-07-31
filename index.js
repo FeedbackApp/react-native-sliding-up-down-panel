@@ -121,11 +121,8 @@ export default class SlidingPanel extends Component {
           this.props.onDragStop(e, gesture)
         }
 
-        console.log('@onPanResponderRelease : ' + a);
         if(a >= 0 && !this.state.isOnTop){
-          console.log('supposed to be going up ')
           sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
-          console.log( this.props.maxDragHeight-this.props.headerLayoutHeight)
           this.props.onAnimationStart();
           Animated.timing(
             this.state.heightAnim,
