@@ -77,6 +77,7 @@ export default class SlidingPanel extends Component {
       },
       onPanResponderMove: (event, gestureState) => {
         if(this.props.allowDragging) {
+          console.log('@onPanResponderMove : ' + a);
           if(a === 0) {
             this.props.onDragStart(event, gestureState);
           }
@@ -120,6 +121,7 @@ export default class SlidingPanel extends Component {
           this.props.onDragStop(e, gesture)
         }
 
+        console.log('@onPanResponderRelease : ' + a);
         if(a > 5){
           sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
           this.props.onAnimationStart();
