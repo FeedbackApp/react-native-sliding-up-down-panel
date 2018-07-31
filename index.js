@@ -77,7 +77,6 @@ export default class SlidingPanel extends Component {
       },
       onPanResponderMove: (event, gestureState) => {
         if(this.props.allowDragging) {
-          console.log('@onPanResponderMove : ' + a);
           if(a === 0) {
             this.props.onDragStart(event, gestureState);
           }
@@ -94,10 +93,11 @@ export default class SlidingPanel extends Component {
               this.props.onTop(true)
               this.props.onAnimationStop()
             });
+            return
           }
           else {
-
               this.props.onDrag(event, gestureState);
+              return
           }
           if(this.props.panelPosition === 'bottom') {
             a = gestureState.dy * -1;
@@ -125,6 +125,7 @@ export default class SlidingPanel extends Component {
         if(a >= 0){
           console.log('supposed to be going up ')
           sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
+          console.log( this.props.maxDragHeight-this.props.headerLayoutHeight)
           this.props.onAnimationStart();
           Animated.timing(
             this.state.heightAnim,
@@ -137,23 +138,25 @@ export default class SlidingPanel extends Component {
             this.setState({isOnTop: true})
             this.props.onAnimationStop()
           });
+          return
         }
-        // else if(a < 0 && this.state.isOnTop)
-        // {
-        //   sliderPosition = 0
-        //   this.props.onAnimationStart();
-        //   Animated.timing(
-        //     this.state.heightAnim,
-        //     {
-        //       toValue: 0,
-        //       duration: this.props.AnimationSpeed,
-        //     }
-        //   ).start(() => {
-        //     this.props.onTop(false)
-        //     this.setState({isOnTop: false})
-        //     this.props.onAnimationStop()
-        //   });
-        // }
+        else if(a < 0 && this.state.isOnTop)
+        {
+          sliderPosition = 0
+          this.props.onAnimationStart();
+          Animated.timing(
+            this.state.heightAnim,
+            {
+              toValue: 0,
+              duration: this.props.AnimationSpeed,
+            }
+          ).start(() => {
+            this.props.onTop(false)
+            this.setState({isOnTop: false})
+            this.props.onAnimationStop()
+          });
+          return;
+        }
 
         if(this.props.allowAnimation) {
           if(a === 0 || (this.props.panelPosition === 'bottom' ? gesture.vy < -1 : gesture.vy > 1)) {
