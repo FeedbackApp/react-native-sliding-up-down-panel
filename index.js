@@ -63,6 +63,7 @@ export default class SlidingPanel extends Component {
     super(props);
     this.state = {
       heightAnim: new Animated.Value(0),
+      isOnTop: false,
       panResponder: {},
     };
   }
@@ -80,7 +81,6 @@ export default class SlidingPanel extends Component {
             this.props.onDragStart(event, gestureState);
           }
           else if(a > 5) {
-            this.props.onTop(true)
             sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
             this.props.onAnimationStart();
             Animated.timing(
@@ -121,7 +121,6 @@ export default class SlidingPanel extends Component {
         }
 
         if(a > 5){
-          this.props.onTop(true)
           sliderPosition = this.props.maxDragHeight-this.props.headerLayoutHeight
           this.props.onAnimationStart();
           Animated.timing(
@@ -132,10 +131,11 @@ export default class SlidingPanel extends Component {
             }
           ).start(() => {
             this.props.onTop(true)
+            this.setState({isOnTop: true})
             this.props.onAnimationStop()
           });
         }
-        else if(a < 0)
+        else if(a < 0 && this.state.isOnTop)
         {
           sliderPosition = 0
           this.props.onAnimationStart();
@@ -147,6 +147,7 @@ export default class SlidingPanel extends Component {
             }
           ).start(() => {
             this.props.onTop(false)
+            this.setState({isOnTop: false})
             this.props.onAnimationStop()
           });
         }
@@ -164,6 +165,7 @@ export default class SlidingPanel extends Component {
                 }
               ).start(() => {
                 this.props.onTop(true)
+                this.setState({isOnTop: true})
                 this.props.onAnimationStop()
               });
             }
@@ -178,6 +180,7 @@ export default class SlidingPanel extends Component {
                 }
               ).start(() => {
                 this.props.onTop(false)
+                this.setState({isOnTop: false})
                 this.props.onAnimationStop()
               });
             }
@@ -193,6 +196,7 @@ export default class SlidingPanel extends Component {
               }
             ).start(() => {
               this.props.onTop(false)
+              this.setState({isOnTop: false})
               this.props.onAnimationStop()
             });
           }
